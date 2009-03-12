@@ -31,8 +31,16 @@ module Synthesis
       sources = (should_merge? ? 
         AssetPackage.targets_from_sources("stylesheets", sources) : 
         AssetPackage.sources_from_targets("stylesheets", sources))
-
-      sources.collect { |source| stylesheet_link_tag(source, options) }.join("\n")    
+      
+      if should_merge?
+        sources.collect { |source| stylesheet_link_tag(source, options) }.join("\n") 
+      else
+        ret = "<style type=\"text/css\" media=\"all\">"
+        sources.each do |s|
+          ret += "@import \"#{ActionController::Base.asset_host}/stylesheets/#{s}.css?#{Time.now.to_i}\";\n"
+        end
+        ret += '</style>'
+      end
     end
 
   end
